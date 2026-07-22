@@ -1,4 +1,4 @@
-import { ProductListScreen } from './product_browser/presenter/screens/ProductListScreen';
+import { ProductListScreen } from '../src/product_browser/presenter/screens/ProductListScreen';
 
 export default function ProductListRoute() {
   return <ProductListScreen />;

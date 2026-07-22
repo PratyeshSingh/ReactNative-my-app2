@@ -1,5 +1,5 @@
 
-import styles from '@/app/style';
+import styles from '@/src/style';
 import { Text, View } from "react-native";
 
 export const LoadingSpinner = () => {
