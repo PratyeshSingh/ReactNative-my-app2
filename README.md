@@ -1,50 +1,36 @@
-# Welcome to your Expo app 👋
+# Product Browser | Clean Architecture & React Native
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A sophisticated mobile product catalog built with **React Native (Expo)**, demonstrating enterprise-grade architectural patterns and optimized performance.
 
-## Get started
+## 🏗️ Architecture Philosophy
+This project implements **Clean Architecture** to achieve a decoupled, testable, and maintainable codebase. By isolating the **Domain** (Business Rules) from **Data** (Infrastructure) and **Presentation** (UI), the application remains resilient to changes in external frameworks or APIs.
 
-1. Install dependencies
+## 🚀 Key Features
+- **High-Performance Catalog**: Smooth list rendering using optimized UI patterns.
+- **Context-Aware Search**: Real-time product discovery via API integration.
+- **Modular DI**: Manual dependency injection for controlled object lifecycles.
+- **Comprehensive Testing**: Robust unit test suite for core business use cases.
 
-   ```bash
-   npm install
-   ```
+## 🛠️ Quick Start
+1.  **Environment Setup**:
+    ```bash
+    npm install
+    ```
+2.  **Execution**:
+    - **Expo Launch**: `npx expo start`
+    - **iOS**: `npm run ios`
+    - **Android**: `npm run android`
+    
+3.  **Verification**:
+    ```bash
+    - npm test
+    - npm test -- --runInBand
+    ```
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## 📚 Documentation
+Detailed engineering specifications are available in the `/docs` directory:
+- **[Engineering Guide](./docs/Engineering_Guide.md)**: Project structure and runtime rationale.
+- **[High-Level Design (HLD)](./docs/HLD.md)**: Architectural patterns and data flow.
+- **[Low-Level Design (LLD)](./docs/LLD.md)**: Module definitions and DI strategy.
+- **[SDK Specifications](./docs/SDKDetails.md)**: Complete dependency audit.
+- **[Business Requirements](./docs/Task.md)**: Original project objectives.

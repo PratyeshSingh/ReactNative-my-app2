@@ -1,0 +1,73 @@
+name: Gemini AI PR Review
+
+on:
+  pull_request:
+    branches: [ "master" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  gemini-code-review:
+    name: Code Review
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetches full history so git diff works perfectly
+
+      - name: Generate Code Review via Gemini API
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -z "$GEMINI_API_KEY" ]; then
+            echo "Error: GEMINI_API_KEY is not set. Please add it to your repository secrets."
+            exit 1
+          fi
+
+          # 1. Get the lines of code changed in this Pull Request
+          git diff origin/${{ github.base_ref }}...HEAD > pr_diff.txt
+          
+          if [ ! -s pr_diff.txt ]; then
+            echo "No code changes detected."
+            exit 0
+          fi
+
+          # 2. Build the payload using jq for safe JSON construction
+          PROMPT_TEXT="You are an expert mobile developer reviewing a React Native / TypeScript project pull request. Analyze the following git diff for potential bugs, optimization opportunities, clean architecture adherence, and memory leaks. Provide feedback directly, concisely, and cleanly as bullet points or brief markdown blocks."
+          DIFF_CONTENT=$(cat pr_diff.txt)
+          FULL_PROMPT="$PROMPT_TEXT\n\nDiff:\n$DIFF_CONTENT"
+
+          PAYLOAD=$(jq -n --arg prompt "$FULL_PROMPT" '{
+            "contents": [{
+              "parts":[{"text": $prompt}]
+            }]
+          }')
+
+          # 3. Call the Gemini API directly
+          RESPONSE=$(curl -s -X POST \
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent" \
+            -H "x-goog-api-key: ${GEMINI_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD")
+
+          # 4. Parse the generated markdown text response
+          REVIEW_TEXT=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // empty')
+
+          if [ -z "$REVIEW_TEXT" ] || [ "$REVIEW_TEXT" == "null" ]; then
+            echo "Failed to retrieve a valid review response from Gemini."
+            echo "API Response: $RESPONSE"
+            exit 1
+          fi
+
+          # 5. Use GitHub's native CLI to post the review comment straight onto the PR
+          echo "### 🤖 Gemini AI Code Review Feedback" > comment.md
+          echo "$REVIEW_TEXT" >> comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file comment.md
