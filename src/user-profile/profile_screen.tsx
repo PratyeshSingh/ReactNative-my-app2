@@ -1,6 +1,6 @@
 
 
-import { useDI } from '@/app/di/DIContext';
+import { useDI } from '../core-di/DIContext';
 import { ErrorView } from './presenter/ui-components/ErrorView';
 import { LoadingSpinner } from './presenter/ui-components/LoadingSpinner';
 import { ProfileView } from './presenter/ui-components/ProfileView';

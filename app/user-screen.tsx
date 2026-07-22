@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from "expo-router";
-import { DIProvider } from "../di/DIContext";
-import { ProfileScreen } from "./profile_screen";
+import { DIProvider } from "../src/core-di/DIContext";
+import { ProfileScreen } from "../src/user-profile/profile_screen";
 
 
 // export default function UserScreen() {
