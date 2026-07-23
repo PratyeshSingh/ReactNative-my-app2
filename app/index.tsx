@@ -11,6 +11,7 @@ export default function Index() {
       <Link href="/product_list" style={styles.linkText}>View product catalog</Link>
       <Link href="/about_me" style={styles.linkText}>View about me</Link>
       <Link href="/user-screen?data=%22123%22" style={styles.linkText}>View user profile</Link>
+      <Link href="/auth-debug" style={styles.linkText}>Auth debug</Link>
     </View>
   );
 }
