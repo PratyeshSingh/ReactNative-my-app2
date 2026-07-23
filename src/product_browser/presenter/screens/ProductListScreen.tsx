@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { FlatList, Text, TextInput, View } from 'react-native';
+import { FlatList, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import styles from '../../../style';
 import { productContainer } from '../../di/productContainer';
 import { ProductListItem } from '../../ui/ProductListItem';
@@ -21,6 +21,7 @@ export function ProductListScreen() {
   return (
     <View style={styles.appContainer}>
       <View style={styles.pageContent}>
+        {/* Search Input */}
         <View style={styles.searchRow}>
           <TextInput
             style={styles.searchInput}
@@ -30,32 +31,46 @@ export function ProductListScreen() {
           />
         </View>
 
-        <View style={styles.categoryContainer}>
-          {categories.map((category) => {
-            const active = category === selectedCategory;
-            return (
-              <Text
-                key={category}
-                onPress={() => setSelectedCategory(category)}
-                style={[
-                  styles.categoryBadge,
-                  active && styles.categoryBadgeActive,
-                  active && styles.categoryTextActive,
-                ]}
-              >
-                <Text style={[styles.categoryText, active && styles.categoryTextActive]}>{category}</Text>
-              </Text>
-            );
-          })}
-        </View>
+        {/* Categories ScrollView - flexGrow: 0 keeps it compact */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={{ flexGrow: 0 }}
+          contentContainerStyle={styles.categoryScrollContent}
+        >
+          <View style={styles.categoryContainer}>
+            {categories.map((category) => {
+              const active = category === selectedCategory;
+              return (
+                <Pressable
+                  key={category}
+                  onPress={() => setSelectedCategory(category)}
+                  style={[
+                    styles.categoryBadge,
+                    active && styles.categoryBadgeActive,
+                  ]}
+                >
+                  <Text
+                    numberOfLines={1}
+                    style={[styles.categoryText, active && styles.categoryTextActive]}
+                  >
+                    {category}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </ScrollView>
 
         {loading && <Text style={styles.loadingText}>Loading products...</Text>}
         {error && <Text style={styles.errorText}>{error}</Text>}
 
+        {/* Main List Area - style with flex: 1 to fill remaining space */}
         <FlatList
           data={products}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderProduct}
+          style={{ flex: 1 }}
           contentContainerStyle={{ paddingBottom: 32 }}
         />
       </View>
