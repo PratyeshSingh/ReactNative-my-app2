@@ -39,7 +39,7 @@ export default function UserScreen() {
           router.replace('/');
           return;
         }
-      } catch (e) {
+      } catch {
         // ignore
       } finally {
         if (mounted) setChecking(false);
