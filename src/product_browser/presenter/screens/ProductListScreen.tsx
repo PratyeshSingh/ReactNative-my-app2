@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { FlatList, Text, TextInput, View } from 'react-native';
+import { FlatList, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import styles from '../../../style';
 import { productContainer } from '../../di/productContainer';
 import { ProductListItem } from '../../ui/ProductListItem';
@@ -30,24 +30,38 @@ export function ProductListScreen() {
           />
         </View>
 
-        <View style={styles.categoryContainer}>
-          {categories.map((category) => {
-            const active = category === selectedCategory;
-            return (
-              <Text
-                key={category}
-                onPress={() => setSelectedCategory(category)}
-                style={[
-                  styles.categoryBadge,
-                  active && styles.categoryBadgeActive,
-                  active && styles.categoryTextActive,
-                ]}
-              >
-                <Text style={[styles.categoryText, active && styles.categoryTextActive]}>{category}</Text>
-              </Text>
-            );
-          })}
-        </View>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.categoryScrollView}
+          contentContainerStyle={styles.categoryScrollContent}
+        >
+          <View style={styles.categoryContainer}>
+            {categories.map((category) => {
+              const active = category === selectedCategory;
+              return (
+                <Pressable
+                  key={category}
+                  onPress={() => setSelectedCategory(category)}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: active }}
+                  style={({ pressed }) => [
+                    styles.categoryBadge,
+                    active && styles.categoryBadgeActive,
+                    { opacity: pressed ? 0.7 : 1 },
+                  ]}
+                >
+                  <Text
+                    numberOfLines={1}
+                    style={[styles.categoryText, active && styles.categoryTextActive]}
+                  >
+                    {category}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </ScrollView>
 
         {loading && <Text style={styles.loadingText}>Loading products...</Text>}
         {error && <Text style={styles.errorText}>{error}</Text>}
@@ -56,7 +70,8 @@ export function ProductListScreen() {
           data={products}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderProduct}
-          contentContainerStyle={{ paddingBottom: 32 }}
+          style={styles.productList}
+          contentContainerStyle={styles.productListContent}
         />
       </View>
     </View>

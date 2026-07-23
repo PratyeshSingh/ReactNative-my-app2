@@ -1,3 +1,4 @@
+import { useDebounce } from '@/src/hooks/Debounce';
 import { useEffect, useMemo, useState } from 'react';
 import { Product } from '../../domain/entities/Product';
 import { GetProducts } from '../../domain/usecases/GetProducts';
@@ -13,27 +14,27 @@ export function useProductCatalog(
   const [selectedCategory, setSelectedCategory] = useState(initialCategory ?? 'All');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Debounce the searchQuery value by 500ms
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
   useEffect(() => {
+    let isMounted = true;
     const load = async () => {
       setLoading(true);
-      setError(null);
-
       try {
-        const items = searchQuery
-          ? await searchProducts.execute(searchQuery)
+        const items = debouncedSearchQuery.trim()
+          ? await searchProducts.execute(debouncedSearchQuery)
           : await getProducts.execute();
-
-        setProducts(items);
-      } catch (e: any) {
-        setError(e?.message ?? 'Failed to load products');
+        if (isMounted) setProducts(items);
+      } catch (e) {
+        if (isMounted) setError(e instanceof Error ? e.message?.toString() : 'Failed');
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
-
     load();
-  }, [getProducts, searchProducts, searchQuery]);
+    return () => { isMounted = false; }; // Cancels state update if component unmounts or query changes
+  }, [getProducts, searchProducts, debouncedSearchQuery]);
 
   const categories = useMemo(() => {
     const uniqueCategories = Array.from(new Set(products.map((product) => product.category)));
