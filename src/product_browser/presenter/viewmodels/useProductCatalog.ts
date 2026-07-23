@@ -14,31 +14,26 @@ export function useProductCatalog(
   const [selectedCategory, setSelectedCategory] = useState(initialCategory ?? 'All');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-// Debounce the searchQuery value by 500ms
+  // Debounce the searchQuery value by 500ms
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
   useEffect(() => {
+    let isMounted = true;
     const load = async () => {
       setLoading(true);
-      setError(null);
-
       try {
-          // Trigger API call only when the debounced query updates
-          if (debouncedSearchQuery.trim().length > 0 && searchQuery != null) {
-            const items = await searchProducts.execute(searchQuery)
-              setProducts(items);
-          }else {
-            const items = await getProducts.execute();
-            setProducts(items);
-          }
-      } catch (e: any) {
-        setError(e?.message ?? 'Failed to load products');
+        const items = debouncedSearchQuery.trim()
+          ? await searchProducts.execute(debouncedSearchQuery)
+          : await getProducts.execute();
+        if (isMounted) setProducts(items);
+      } catch (e) {
+        if (isMounted) setError(e instanceof Error ? e.message?.toString() : 'Failed');
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
-
     load();
+    return () => { isMounted = false; }; // Cancels state update if component unmounts or query changes
   }, [getProducts, searchProducts, debouncedSearchQuery]);
 
   const categories = useMemo(() => {

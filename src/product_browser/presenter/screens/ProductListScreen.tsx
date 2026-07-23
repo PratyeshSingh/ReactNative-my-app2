@@ -51,7 +51,7 @@ export function ProductListScreen() {
                     { opacity: pressed ? 0.7 : 1 },
                   ]}
                 >
-                  <Text 
+                  <Text
                     numberOfLines={1}
                     style={[styles.categoryText, active && styles.categoryTextActive]}
                   >
