@@ -1,3 +1,4 @@
+import { useDebounce } from '@/src/hooks/Debounce';
 import { useEffect, useMemo, useState } from 'react';
 import { Product } from '../../domain/entities/Product';
 import { GetProducts } from '../../domain/usecases/GetProducts';
@@ -13,6 +14,8 @@ export function useProductCatalog(
   const [selectedCategory, setSelectedCategory] = useState(initialCategory ?? 'All');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+// Debounce the searchQuery value by 500ms
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
   useEffect(() => {
     const load = async () => {
@@ -20,11 +23,14 @@ export function useProductCatalog(
       setError(null);
 
       try {
-        const items = searchQuery
-          ? await searchProducts.execute(searchQuery)
-          : await getProducts.execute();
-
-        setProducts(items);
+          // Trigger API call only when the debounced query updates
+          if (debouncedSearchQuery.trim().length > 0 && searchQuery != null) {
+            const items = await searchProducts.execute(searchQuery)
+              setProducts(items);
+          }else {
+            const items = await getProducts.execute();
+            setProducts(items);
+          }
       } catch (e: any) {
         setError(e?.message ?? 'Failed to load products');
       } finally {
@@ -33,7 +39,7 @@ export function useProductCatalog(
     };
 
     load();
-  }, [getProducts, searchProducts, searchQuery]);
+  }, [getProducts, searchProducts, debouncedSearchQuery]);
 
   const categories = useMemo(() => {
     const uniqueCategories = Array.from(new Set(products.map((product) => product.category)));

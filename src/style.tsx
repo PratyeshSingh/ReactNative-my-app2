@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f4f4f8',
   },
   pageContent: {
-    flex: 1, // Ensures the page content fills screen height properly
+    flex: 1,
     padding: 16,
   },
   searchRow: {
@@ -43,6 +43,9 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     backgroundColor: '#fff',
     fontSize: 16,
+  },
+  categoryScrollView: {
+    flexGrow: 0, // Extracted from inline style
   },
   categoryScrollContent: {
     paddingLeft: 0,
@@ -61,6 +64,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     backgroundColor: '#e8e8f2',
     marginRight: 8,
+    marginBottom: 0,
+    alignSelf: 'center',
     flexShrink: 0,
   },
   categoryBadgeActive: {
@@ -70,11 +75,16 @@ const styles = StyleSheet.create({
     color: '#333',
     fontSize: 14,
     flexShrink: 0,
-    alignSelf: 'flex-start',
   },
   categoryTextActive: {
     color: '#fff',
     fontSize: 14,
+  },
+  productList: {
+    flex: 1, // Extracted from inline style
+  },
+  productListContent: {
+    paddingBottom: 32, // Extracted from inline style
   },
   productItem: {
     flexDirection: 'row',

@@ -21,7 +21,6 @@ export function ProductListScreen() {
   return (
     <View style={styles.appContainer}>
       <View style={styles.pageContent}>
-        {/* Search Input */}
         <View style={styles.searchRow}>
           <TextInput
             style={styles.searchInput}
@@ -31,11 +30,10 @@ export function ProductListScreen() {
           />
         </View>
 
-        {/* Categories ScrollView - flexGrow: 0 keeps it compact */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          style={{ flexGrow: 0 }}
+          style={styles.categoryScrollView}
           contentContainerStyle={styles.categoryScrollContent}
         >
           <View style={styles.categoryContainer}>
@@ -45,12 +43,15 @@ export function ProductListScreen() {
                 <Pressable
                   key={category}
                   onPress={() => setSelectedCategory(category)}
-                  style={[
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: active }}
+                  style={({ pressed }) => [
                     styles.categoryBadge,
                     active && styles.categoryBadgeActive,
+                    { opacity: pressed ? 0.7 : 1 },
                   ]}
                 >
-                  <Text
+                  <Text 
                     numberOfLines={1}
                     style={[styles.categoryText, active && styles.categoryTextActive]}
                   >
@@ -65,13 +66,12 @@ export function ProductListScreen() {
         {loading && <Text style={styles.loadingText}>Loading products...</Text>}
         {error && <Text style={styles.errorText}>{error}</Text>}
 
-        {/* Main List Area - style with flex: 1 to fill remaining space */}
         <FlatList
           data={products}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderProduct}
-          style={{ flex: 1 }}
-          contentContainerStyle={{ paddingBottom: 32 }}
+          style={styles.productList}
+          contentContainerStyle={styles.productListContent}
         />
       </View>
     </View>
