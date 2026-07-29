@@ -11,7 +11,12 @@ export async function getCall<T>(
     headers: { 'Content-Type': 'application/json', ...headers },
   });
   if (!response.ok) {
-    throw new Error(`Network request failed: ${response.status}`);
+    let errorMessage = `Network request failed: ${response.status}`;
+    try {
+      const errBody = await response.json();
+      if (errBody?.message) errorMessage = errBody.message;
+    } catch { }
+    throw new Error(errorMessage);
   }
   return response.json();
 }
@@ -28,6 +33,14 @@ export async function postCall<T>(
   });
   if (!response.ok) {
     throw new Error(`Network request failed: ${response.status}`);
+  }
+  if (!response.ok) {
+    let errorMessage = `Network request failed: ${response.status}`;
+    try {
+      const errBody = await response.json();
+      if (errBody?.message) errorMessage = errBody.message;
+    } catch { }
+    throw new Error(errorMessage);
   }
   return response.json();
 }

@@ -108,7 +108,17 @@ export class AuthRepositoryImpl implements AuthRepository {
   async authMe(accessToken?: string) {
     const token = accessToken ?? (await this.getToken())?.accessToken;
     if (!token) throw new Error('No access token available');
-    return authMeApi(token);
+    
+    const resp = await authMeApi(token);
+    if (resp.accessToken) {
+      const newToken: Token = { 
+        accessToken: resp.accessToken, 
+        refreshToken: resp.refreshToken,
+        expiresAt: resp.expiresAt
+      };
+      await this.saveToken(newToken);
+    }
+    return resp;
   }
 
   async refresh(refreshToken?: string, expiresInMins?: number): Promise<LoginResponse> {
@@ -116,7 +126,11 @@ export class AuthRepositoryImpl implements AuthRepository {
     const body: RefreshRequest = { refreshToken: token, expiresInMins };
     const resp = await refreshApi(body);
     if (resp.accessToken) {
-      const newToken: Token = { accessToken: resp.accessToken, refreshToken: resp.refreshToken };
+      const newToken: Token = { 
+        accessToken: resp.accessToken, 
+        refreshToken: resp.refreshToken,
+        expiresAt: resp.expiresAt,
+      };
       await this.saveToken(newToken);
     }
     return resp;

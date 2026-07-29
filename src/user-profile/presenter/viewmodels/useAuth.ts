@@ -1,9 +1,15 @@
 import { useState } from 'react';
 import { GetCurrentUser } from '../../domain/usecases/GetCurrentUser';
+import { GetSavedToken } from '../../domain/usecases/GetSavedToken';
 import { Login } from '../../domain/usecases/Login';
 import { RefreshSession } from '../../domain/usecases/RefreshSession';
 
-export function useAuth(loginUsecase: Login, refreshUsecase: RefreshSession, meUsecase: GetCurrentUser) {
+export function useAuth(
+  loginUsecase: Login, 
+  refreshUsecase: RefreshSession,
+  savedToken: GetSavedToken,
+  meUsecase: GetCurrentUser
+) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -49,5 +55,19 @@ export function useAuth(loginUsecase: Login, refreshUsecase: RefreshSession, meU
     }
   }
 
-  return { signIn, refresh, me, loading, error };
+  async function token() {
+    setLoading(true);
+    setError(null);
+    try {
+      const token = await savedToken.execute();
+      return token;
+    } catch (e: any) {
+      setError(e?.message ?? 'Fetch token failed');
+      throw e;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return { signIn, refresh, me, token, loading, error };
 }

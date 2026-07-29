@@ -1,3 +1,4 @@
+import { useAuth } from '@/src/user-profile/presenter/viewmodels/useAuth';
 import { ProfileScreen } from '@/src/user-profile/profile_screen';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -13,6 +14,7 @@ export default function UserScreen() {
   const router = useRouter();
   const [loginResponse, setLoginResponse] = useState<LoginResponse | null>(null);
   const [checking, setChecking] = useState(true);
+  const { signIn, refresh, token, me } = useAuth(container.login, container.refreshSession, container.getSavedToken, container.getCurrentUser);
 
   const parseUserData = (params?: string | string[]) => {
     if (typeof params === 'string') {
@@ -29,15 +31,18 @@ export default function UserScreen() {
     return { userId: undefined, password: undefined };
   };
 
+
+  const { userId, password } = parseUserData(data);
+
   useEffect(() => {
     let isMounted = true;
 
     const checkSession = async () => {
       try {
-        const token = await container.authRepository.getToken();
+        const savedToken = await token();
         if (!isMounted) return;
 
-        if (token?.accessToken) {
+        if (savedToken?.accessToken) {
           router.replace('/');
           return;
         }
@@ -60,25 +65,17 @@ export default function UserScreen() {
   async function loadUserDetails({ userName, pwd }: { userName: string, pwd: string }) {
     console.log(`[UserScreen] ${userName} ${pwd}`);
     try {
-      const response = await container.login.execute(userName, pwd);
+      const response = await signIn(userName, pwd);
       setLoginResponse(response);
     } catch (e: any) {
       setLoginResponse(null);
     }
-
-    await container.authRepository.saveToken({
-      accessToken: loginResponse?.accessToken,
-      refreshToken: loginResponse?.refreshToken,
-      expiresAt: loginResponse?.expiresAt,
-    });
   }
 
   const [showProfile, setShowProfile] = useState(false);
   if (showProfile) {
     return (
-      <ProfileScreen
-        userId={parseUserData(data).userId}
-      />
+      <ProfileScreen userId={userId} />
     );
   }
 
@@ -119,7 +116,6 @@ export default function UserScreen() {
         <Button
           title="Seed Dynamic and view profile"
           onPress={() => {
-            const { userId, password } = parseUserData(data);
             loadUserDetails({ userName: userId, pwd: password })
           }}
         />
