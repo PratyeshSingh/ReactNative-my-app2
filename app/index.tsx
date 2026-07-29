@@ -14,7 +14,7 @@ export default function Index() {
         href={{
           pathname: '/user-screen',
           params: { 
-            userId: 'emilys', password: 'emilyspass' ,
+            // userId: 'emilys', password: 'emilyspass' ,
             data: JSON.stringify({ userId: 'emilys', password: 'emilyspass' }),
           },
         }}
