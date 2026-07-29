@@ -1,5 +1,5 @@
 import { AuthRepository, Token } from '../../domain/repositories/AuthRepository';
-import { loginApi, LoginRequest, LoginResponse, meApi, refreshApi, RefreshRequest } from '../api/AuthApi';
+import { authMeApi, loginApi, LoginRequest, LoginResponse, refreshApi, RefreshRequest } from '../api/AuthApi';
 
 const TOKEN_KEY = 'auth.token';
 
@@ -105,10 +105,10 @@ export class AuthRepositoryImpl implements AuthRepository {
     await safeDelete(TOKEN_KEY);
   }
 
-  async me(accessToken?: string) {
+  async authMe(accessToken?: string) {
     const token = accessToken ?? (await this.getToken())?.accessToken;
     if (!token) throw new Error('No access token available');
-    return meApi(token);
+    return authMeApi(token);
   }
 
   async refresh(refreshToken?: string, expiresInMins?: number): Promise<LoginResponse> {

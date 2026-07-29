@@ -1,3 +1,6 @@
+
+import { baseUrl, getCall } from '@/src/hooks/fetchJson';
+
 export type ProductDto = {
   id: number;
   title: string;
@@ -18,35 +21,26 @@ export type ProductListResponse = {
 };
 
 export class ProductApiClient {
-  private baseUrl = 'https://dummyjson.com';
-
-  private async fetchJson<T>(url: string): Promise<T> {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`Network request failed: ${response.status}`);
-    }
-    return response.json();
-  }
 
   async fetchProducts(): Promise<ProductListResponse> {
-    return this.fetchJson<ProductListResponse>(`${this.baseUrl}/products?limit=100`);
+    return getCall<ProductListResponse>(`${baseUrl}/products?limit=100`);
   }
 
   async fetchProduct(id: string): Promise<ProductDto> {
-    return this.fetchJson<ProductDto>(`${this.baseUrl}/products/${encodeURIComponent(id)}`);
+    return getCall<ProductDto>(`${baseUrl}/products/${encodeURIComponent(id)}`);
   }
 
   async searchProducts(query: string): Promise<ProductListResponse> {
-    return this.fetchJson<ProductListResponse>(`${this.baseUrl}/products/search?q=${encodeURIComponent(query)}`);
+    return getCall<ProductListResponse>(`${baseUrl}/products/search?q=${encodeURIComponent(query)}`);
   }
 
   async fetchCategories(): Promise<string[]> {
-    return this.fetchJson<string[]>(`${this.baseUrl}/products/categories`);
+    return getCall<string[]>(`${baseUrl}/products/categories`);
   }
 
   async fetchProductsByCategory(category: string): Promise<ProductListResponse> {
-    return this.fetchJson<ProductListResponse>(
-      `${this.baseUrl}/products/category/${encodeURIComponent(category)}?limit=100`
+    return getCall<ProductListResponse>(
+      `${baseUrl}/products/category/${encodeURIComponent(category)}?limit=100`
     );
   }
 }

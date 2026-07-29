@@ -1,98 +1,132 @@
+import { ProfileScreen } from '@/src/user-profile/profile_screen';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Button, Image, Text, View } from 'react-native';
 import { container } from '../src/core-di/container';
 import { DIProvider } from '../src/core-di/DIContext';
 import styles from '../src/style';
-import { ProfileScreen } from '../src/user-profile/profile_screen';
+import { LoginResponse } from '../src/user-profile/data/api/AuthApi';
 
 export default function UserScreen() {
-  const { data } = useLocalSearchParams();
-  const userId = data ? JSON.parse(data as string) : undefined;
-  const [user, setUser] = useState<any | null>(null);
-  const [checking, setChecking] = useState(true);
-  const router = useRouter();
+  const { data } = useLocalSearchParams<{ data?: string | string[] }>();
 
-  // Provided sample /auth/me response (from your message)
-  const sampleAuthResponse = {
-    accessToken:
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJlbWlseXMiLCJlbWFpbCI6ImVtaWx5LmpvaG5zb25AeC5kdW1teWpzb24uY29tIiwiZmlyc3ROYW1lIjoiRW1pbHkiLCJsYXN0TmFtZSI6IkpvaG5zb24iLCJnZW5kZXIiOiJmZW1hbGUiLCJpbWFnZSI6Imh0dHBzOi8vZHVtbXlqc29uLmNvbS9pY29uL2VtaWx5cy8xMjgiLCJpYXQiOjE3ODQ4MDU4NzcsImV4cCI6MTc4NDgwOTQ3N30.AJrYZHoJb28b2EHO0i6r0Q1j8vEWQyUMKstc711oGOs',
-    refreshToken:
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJlbWlseXMiLCJlbWFpbCI6ImVtaWx5LmpvaG5zb25AeC5kdW1teWpzb24uY29tIiwiZmlyc3ROYW1lIjoiRW1pbHkiLCJsYXN0TmFtZSI6IkpvaG5zb24iLCJnZW5kZXIiOiJmZW1hbGUiLCJpbWFnZSI6Imh0dHBzOi8vZHVtbXlqc29uLmNvbS9pY29uL2VtaWx5cy8xMjgiLCJpYXQiOjE3ODQ4MDU4NzcsImV4cCI6MTc4NzM5Nzg3N30.0XCiFplXdpNPVtBqLJI1TQC_OVpqY0hAj3by-MHAgjM',
-    id: 1,
-    username: 'emilys',
-    email: 'emily.johnson@x.dummyjson.com',
-    firstName: 'Emily',
-    lastName: 'Johnson',
-    gender: 'female',
-    image: 'https://dummyjson.com/icon/emilys/128',
-  } as any;
+  const router = useRouter();
+  const [loginResponse, setLoginResponse] = useState<LoginResponse | null>(null);
+  const [checking, setChecking] = useState(true);
+
+  const parseUserData = (params?: string | string[]) => {
+    if (typeof params === 'string') {
+      try {
+        const parsed = JSON.parse(params);
+        return {
+          userId: parsed?.userId ?? undefined,
+          password: parsed?.password ?? undefined,
+        };
+      } catch {
+        // handle JSON parse error if needed
+      }
+    }
+    return { userId: undefined, password: undefined };
+  };
 
   useEffect(() => {
-    let mounted = true;
-    async function check() {
+    let isMounted = true;
+
+    const checkSession = async () => {
       try {
-        const tk = await container.authRepository.getToken();
-        if (!mounted) return;
-        if (tk && tk.accessToken) {
-          // user already logged in — navigate back to home
+        const token = await container.authRepository.getToken();
+        if (!isMounted) return;
+
+        if (token?.accessToken) {
           router.replace('/');
           return;
         }
       } catch {
-        // ignore
+        // Ignore and continue showing the screen.
       } finally {
-        if (mounted) setChecking(false);
+        if (isMounted) {
+          setChecking(false);
+        }
       }
-    }
-    check();
+    };
+
+    void checkSession();
+
     return () => {
-      mounted = false;
+      isMounted = false;
     };
   }, [router]);
 
-  async function seedSampleAndShow() {
-    await container.authRepository.saveToken({ accessToken: sampleAuthResponse.accessToken, refreshToken: sampleAuthResponse.refreshToken });
-    setUser({ id: sampleAuthResponse.id, name: `${sampleAuthResponse.firstName} ${sampleAuthResponse.lastName}`, email: sampleAuthResponse.email, image: sampleAuthResponse.image });
+  async function loadUserDetails({ userName, pwd }: { userName: string, pwd: string }) {
+    console.log(`[UserScreen] ${userName} ${pwd}`);
+    try {
+      const response = await container.login.execute(userName, pwd);
+      setLoginResponse(response);
+    } catch (e: any) {
+      setLoginResponse(null);
+    }
+
+    await container.authRepository.saveToken({
+      accessToken: loginResponse?.accessToken,
+      refreshToken: loginResponse?.refreshToken,
+      expiresAt: loginResponse?.expiresAt,
+    });
   }
 
-  if (checking) {
+  const [showProfile, setShowProfile] = useState(false);
+  if (showProfile) {
     return (
-      <DIProvider>
+      <ProfileScreen
+        userId={parseUserData(data).userId}
+      />
+    );
+  }
+
+  const content = (() => {
+
+    if (checking) {
+      return (
         <View style={styles.container}>
           <Text style={styles.pageTitle}>Checking session…</Text>
         </View>
-      </DIProvider>
-    );
-  }
+      );
+    }
 
-  if (user) {
-    return (
-      <DIProvider>
+    if (loginResponse) {
+      return (
         <View style={styles.container}>
           <Text style={styles.pageTitle}>User (Auth demo)</Text>
-          <Image source={{ uri: user.image }} style={{ width: 128, height: 128, borderRadius: 64, marginBottom: 12 }} />
-          <Text style={styles.subTitle}>{user.name}</Text>
-          <Text>{user.email}</Text>
+          <Image
+            source={{ uri: loginResponse.image }}
+            style={{ width: 128, height: 128, borderRadius: 64, marginBottom: 12 }}
+          />
+          <Text style={styles.subTitle}>{loginResponse.username}</Text>
+          <Text>{loginResponse.email}</Text>
           <View style={{ height: 12 }} />
-          <Button title="Open Profile View" onPress={() => {}} />
+          <Button title="Open Profile View" onPress={() => {
+            setShowProfile(true);
+          }} />
           <View style={{ height: 12 }} />
-          <ProfileScreen user={user} />
         </View>
-      </DIProvider>
-    );
-  }
+      );
+    }
 
-  return (
-    <DIProvider>
+    return (
       <View style={styles.container}>
         <Text style={styles.pageTitle}>User Profile</Text>
         <Text style={styles.subTitle}>No active session</Text>
         <View style={{ height: 12 }} />
-        <Button title="Seed sample session and view profile" onPress={seedSampleAndShow} />
+        <Button
+          title="Seed Dynamic and view profile"
+          onPress={() => {
+            const { userId, password } = parseUserData(data);
+            loadUserDetails({ userName: userId, pwd: password })
+          }}
+        />
         <View style={{ height: 12 }} />
-        <ProfileScreen userId={userId} />
       </View>
-    </DIProvider>
-  );
+    );
+  })();
+
+  return <DIProvider>{content}</DIProvider>;
 }
