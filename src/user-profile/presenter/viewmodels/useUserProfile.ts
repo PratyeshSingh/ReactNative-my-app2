@@ -11,21 +11,27 @@ export const putDelay = async () => {
   };
 };
 
-export function useUserProfile(userId: string, getUserProfile: GetUserProfile) {
+export function useUserProfile(userId: string | undefined, getUserProfile?: GetUserProfile) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
 
   useEffect(() => {
-    putDelay().then(res => { // Simulate a delay
+    // don't attempt to load when no userId or getUserProfile provided
+    if (!userId || !getUserProfile) {
+      setLoading(false);
+      return;
+    }
+
+    putDelay().then(() => {  // Simulate a delay
       getUserProfile.execute(userId)
         .then(setUser)
-        .catch(e => setError(e.message))
+        .catch((e: any) => setError(e?.message ?? String(e)))
         .finally(() => setLoading(false));
     });
 
-  }, [userId]);
+  }, [userId, getUserProfile]);
 
   return { user, loading, error };
 }
