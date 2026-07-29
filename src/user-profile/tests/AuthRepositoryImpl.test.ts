@@ -38,7 +38,7 @@ describe('AuthRepositoryImpl (integration with fetch & secure store mocks)', () 
     const mod = await import('../data/repositories/AuthRepositoryImpl');
     const { AuthRepositoryImpl } = mod as any;
     const repo = new AuthRepositoryImpl();
-    const user = await repo.me('explicit-token');
+    const user = await repo.authMe('explicit-token');
     expect(user.id).toBe(2);
     expect((global as any).fetch).toHaveBeenCalled();
   });
@@ -48,7 +48,7 @@ describe('AuthRepositoryImpl (integration with fetch & secure store mocks)', () 
     const mod = await import('../data/repositories/AuthRepositoryImpl');
     const { AuthRepositoryImpl } = mod as any;
     const repo = new AuthRepositoryImpl();
-    await expect(repo.me()).rejects.toThrow('No access token available');
+    await expect(repo.authMe()).rejects.toThrow('No access token available');
   });
 
   it('refresh calls refresh API and updates stored tokens', async () => {
