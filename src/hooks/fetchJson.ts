@@ -32,9 +32,6 @@ export async function postCall<T>(
     body: JSON.stringify(body),
   });
   if (!response.ok) {
-    throw new Error(`Network request failed: ${response.status}`);
-  }
-  if (!response.ok) {
     let errorMessage = `Network request failed: ${response.status}`;
     try {
       const errBody = await response.json();

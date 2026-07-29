@@ -11,13 +11,15 @@ export default function Index() {
       <Link href="/product_list" style={styles.linkText}>View product catalog</Link>
       <Link href="/about_me" style={styles.linkText}>View about me</Link>
       <Link
+        style={styles.linkText}
         href={{
           pathname: '/user-screen',
-          params: { 
+          params: {
             // userId: 'emilys', password: 'emilyspass' ,
             data: JSON.stringify({ userId: 'emilys', password: 'emilyspass' }),
           },
-        }}
+        }
+        }
       >View user profile</Link>
       <Link href="/auth-debug" style={styles.linkText}>Auth debug</Link>
     </View>

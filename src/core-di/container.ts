@@ -18,7 +18,7 @@ export const container = {
   refreshSession: new RefreshSession(authRepository),
   getCurrentUser: new GetCurrentUser(authRepository),
   getSavedToken : new GetSavedToken(authRepository),
-  // authRepository,
+  authRepository,
   // updateUserProfile: new UpdateUserProfile(userRepository),
   // ...other use cases, sharing the same repository instance
 };

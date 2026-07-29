@@ -60,7 +60,7 @@ export default function UserScreen() {
     return () => {
       isMounted = false;
     };
-  }, [router]);
+  }, [router, token]);
 
   async function loadUserDetails({ userName, pwd }: { userName: string, pwd: string }) {
     console.log(`[UserScreen] ${userName} ${pwd}`);
@@ -75,7 +75,9 @@ export default function UserScreen() {
   const [showProfile, setShowProfile] = useState(false);
   if (showProfile) {
     return (
-      <ProfileScreen userId={userId} />
+      <DIProvider>
+        <ProfileScreen userId={userId} />
+      </DIProvider>
     );
   }
 

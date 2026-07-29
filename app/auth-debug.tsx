@@ -42,7 +42,7 @@ export default function AuthDebugScreen() {
   async function showStoredToken() {
     setOutput('Reading stored token...');
     try {
-      const t = await container.authRepository.getToken();
+      const t = await container.getSavedToken.execute();
       setOutput(JSON.stringify(t, null, 2));
     } catch (e: any) {
       setOutput(String(e?.message ?? e));
