@@ -48,7 +48,14 @@ jobs:
         run: | 
           npm install -D c8 
           npx c8 --reporter=text --reporter=html npx jest
-          open coverage/index.html
+          
+        # Upload coverage HTML report as an artifact to view in GitHub UI
+      - name: Upload Coverage HTML Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage/
 
       - name: Check Complexity of Existing Tests
         # Install tools
