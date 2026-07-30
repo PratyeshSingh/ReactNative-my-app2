@@ -58,13 +58,22 @@ jobs:
           path: coverage/
 
       - name: Check Complexity of Existing Tests
-        # Install tools
-        # npm install -D eslint-plugin-jest complexity-report
-        # Check cyclomatic complexity of your test files
-        # npx cr --format plain --output complexity-report.txt ./src/**/*.test.ts
         run: | 
           npm install -D eslint-plugin-jest complexity-report
-          npx cr --format plain --output complexity-report.txt ./src/**/*.test.ts
+          TEST_FILES=$(find src -type f \( -name "*.test.ts" -o -name "*.test.tsx" -o -name "*.spec.ts" -o -name "*.spec.tsx" \))
+          if [ -n "$TEST_FILES" ]; then
+            npx cr --format plain --output complexity-report.txt $TEST_FILES
+          else
+            echo "No test files found under src/"
+          fi
+
+      # Upload complexity report as an artifact
+      - name: Upload Complexity Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: complexity-report
+          path: complexity-report.txt
 
         
 
