@@ -3,5 +3,11 @@
     "source.fixAll": "explicit",
     "source.organizeImports": "explicit",
     "source.sortMembers": "explicit"
-  }
+  },
+  "coverage-gutters.coverageFileNames": [
+    "lcov.info"
+  ],
+  "coverage-gutters.showLineCoverage": true,
+  "coverage-gutters.showBranchCoverage": true,
+  "coverage-gutters.autowatch": true
 }

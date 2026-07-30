@@ -2,9 +2,9 @@ name: Test Runner
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
   pull_request:
-    branches: [ "master" ]
+    branches: ["master"]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -26,8 +26,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm install
@@ -37,3 +37,27 @@ jobs:
 
       - name: Run Tests
         run: npm test
+
+      - name: Install dependencies & run coverage
+        # Install coverage CLI analyzer
+        # run: npm install -D c8
+        # # Run c8 to get a detailed per-file report
+        # run: npx c8 --reporter=text --reporter=html npx jest
+        # # Open HTML report to visually inspect uncovered branches
+        # run: open coverage/index.html
+        run: | 
+          npm install -D c8 
+          npx c8 --reporter=text --reporter=html npx jest
+          open coverage/index.html
+
+      - name: Check Complexity of Existing Tests
+        # Install tools
+        # npm install -D eslint-plugin-jest complexity-report
+        # Check cyclomatic complexity of your test files
+        # npx cr --format plain --output complexity-report.txt ./src/**/*.test.ts
+        run: | 
+          npm install -D eslint-plugin-jest complexity-report
+          npx cr --format plain --output complexity-report.txt ./src/**/*.test.ts
+
+        
+
