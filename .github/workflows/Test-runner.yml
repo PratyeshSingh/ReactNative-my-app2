@@ -2,9 +2,9 @@ name: Test Runner
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
   pull_request:
-    branches: [ "master" ]
+    branches: ["master"]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -26,8 +26,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm install
@@ -37,3 +37,43 @@ jobs:
 
       - name: Run Tests
         run: npm test
+
+      - name: Install dependencies & run coverage
+        # Install coverage CLI analyzer
+        # run: npm install -D c8
+        # # Run c8 to get a detailed per-file report
+        # run: npx c8 --reporter=text --reporter=html npx jest
+        # # Open HTML report to visually inspect uncovered branches
+        # run: open coverage/index.html
+        run: | 
+          npm install -D c8 
+          npx c8 --reporter=text --reporter=html npx jest
+          
+        # Upload coverage HTML report as an artifact to view in GitHub UI
+      - name: Upload Coverage HTML Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage/
+
+      - name: Check Complexity of Existing Tests
+        run: | 
+          npm install -D eslint-plugin-jest complexity-report
+          TEST_FILES=$(find src -type f \( -name "*.test.ts" -o -name "*.test.tsx" -o -name "*.spec.ts" -o -name "*.spec.tsx" \))
+          if [ -n "$TEST_FILES" ]; then
+            npx cr --format plain --output complexity-report.txt $TEST_FILES
+          else
+            echo "No test files found under src/"
+          fi
+
+      # Upload complexity report as an artifact
+      - name: Upload Complexity Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: complexity-report
+          path: complexity-report.txt
+
+        
+

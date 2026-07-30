@@ -11,4 +11,21 @@ module.exports = {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
   testMatch: ['**/?(*.)+(spec|test).[jt]s?(x)'],
   setupFilesAfterEnv: [],
+
+  collectCoverageFrom: [
+    "src/**/*.{ts,js}",
+    "!src/**/__tests__/**",
+    "!src/**/__mocks__/**",
+    "!src/setupTests.ts"
+  ],
+  coveragePathIgnorePatterns: [
+    "/node_modules/",
+    "/dist/",
+    "/build/"
+  ],
+  testPathIgnorePatterns: [
+    "/node_modules/",
+    "/dist/",
+    "/e2e/"
+  ]
 };
