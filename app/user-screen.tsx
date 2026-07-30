@@ -48,7 +48,9 @@ export default function UserScreen() {
 
         if (savedToken?.accessToken) {
           const response = await me(savedToken?.accessToken);
-          setLoginResponse(response);
+          if (isMounted) {
+            setLoginResponse(response);
+          }
         } else {
           // router.replace('/');
           setLoginResponse(null);
