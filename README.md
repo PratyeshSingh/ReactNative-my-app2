@@ -26,6 +26,13 @@ This project implements **Clean Architecture** to achieve a decoupled, testable,
     - npm test
     - npm test -- --runInBand
     ```
+4.  **Execute Local Coverage Verification**:
+    ```bash
+    chmod +x check-coverage.sh
+    ./check-coverage.sh
+    # or via npm
+    npm run test:coverage   
+    ``` 
 
 ## 📚 Documentation
 Detailed engineering specifications are available in the `/docs` directory:
