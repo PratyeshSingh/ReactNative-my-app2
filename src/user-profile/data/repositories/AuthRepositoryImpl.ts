@@ -92,9 +92,6 @@ export class AuthRepositoryImpl implements AuthRepository {
   }
 
   async saveToken(token: Token): Promise<void> {
-
-  console.log(`[AuthRepo IMpl Showing during store token] resp: ${TOKEN_KEY} :: ${JSON.stringify(token)} `);
-    
     await safeSet(TOKEN_KEY, JSON.stringify(token));
   }
 
