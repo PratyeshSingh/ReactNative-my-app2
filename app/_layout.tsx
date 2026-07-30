@@ -8,6 +8,7 @@ export default function RootLayout() {
       <Stack.Screen name="product_detail" options={{ title: 'Product Detail' }} />
       <Stack.Screen name="about_me" options={{ title: 'About Me' }} />
       <Stack.Screen name="user-screen" options={{ title: 'Profile' }} />
+      <Stack.Screen name="profile_screen" options={{ title: 'Profile Details' }} />
     </Stack>
   );
 }

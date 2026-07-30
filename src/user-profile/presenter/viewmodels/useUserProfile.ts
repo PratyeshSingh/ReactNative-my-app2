@@ -11,27 +11,58 @@ export const putDelay = async () => {
   };
 };
 
-export function useUserProfile(userId: string | undefined, getUserProfile?: GetUserProfile) {
+export function useUserProfile(
+  userId: string | undefined,
+  getUserProfile?: GetUserProfile,
+  initialUser?: any
+) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
 
   useEffect(() => {
+
+    // 🛑 BYPASS FETCHING: If initialUser is provided, don't trigger the API call!
+    if (initialUser) {
+      setUser(initialUser);
+      setLoading(false);
+      return;
+    }
+
     // don't attempt to load when no userId or getUserProfile provided
     if (!userId || !getUserProfile) {
       setLoading(false);
       return;
     }
 
-    putDelay().then(() => {  // Simulate a delay
-      getUserProfile.execute(userId)
-        .then(setUser)
-        .catch((e: any) => setError(e?.message ?? String(e)))
-        .finally(() => setLoading(false));
-    });
+    let isMounted = true;
+    
+    const fetchProfile = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const result = await getUserProfile.execute(userId);
+        if (isMounted) {
+          setUser(result);
+        }
+      } catch (err: any) {
+        if (isMounted) {
+          setError(err?.message ?? 'Failed to load profile');
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
 
-  }, [userId, getUserProfile]);
+    fetchProfile();
+    return () => {
+      isMounted = false;
+    };
+
+  }, [userId, getUserProfile, initialUser]);
 
   return { user, loading, error };
 }
