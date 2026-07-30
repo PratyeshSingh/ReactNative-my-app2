@@ -1,5 +1,4 @@
 import { useAuth } from '@/src/user-profile/presenter/viewmodels/useAuth';
-import { ProfileScreen } from '@/src/user-profile/profile_screen';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Button, Image, Text, View } from 'react-native';
@@ -14,7 +13,12 @@ export default function UserScreen() {
   const router = useRouter();
   const [loginResponse, setLoginResponse] = useState<LoginResponse | null>(null);
   const [checking, setChecking] = useState(true);
-  const { signIn, refresh, token, me } = useAuth(container.login, container.refreshSession, container.getSavedToken, container.getCurrentUser);
+  const { signIn, refresh, token, me } = useAuth(
+    container.login, 
+    container.refreshSession, 
+    container.getSavedToken, 
+    container.getCurrentUser
+  );
 
   const parseUserData = (params?: string | string[]) => {
     if (typeof params === 'string') {
@@ -43,7 +47,11 @@ export default function UserScreen() {
         if (!isMounted) return;
 
         if (savedToken?.accessToken) {
-          router.replace('/');
+          const response = await me(savedToken?.accessToken);
+          setLoginResponse(response);
+        } else {
+          // router.replace('/');
+          setLoginResponse(null);
           return;
         }
       } catch {
@@ -72,15 +80,6 @@ export default function UserScreen() {
     }
   }
 
-  const [showProfile, setShowProfile] = useState(false);
-  if (showProfile) {
-    return (
-      <DIProvider>
-        <ProfileScreen userId={userId} />
-      </DIProvider>
-    );
-  }
-
   const content = (() => {
 
     if (checking) {
@@ -103,7 +102,7 @@ export default function UserScreen() {
           <Text>{loginResponse.email}</Text>
           <View style={{ height: 12 }} />
           <Button title="Open Profile View" onPress={() => {
-            setShowProfile(true);
+            router.push({ pathname: '/profile_screen', params: { userId: userId } })
           }} />
           <View style={{ height: 12 }} />
         </View>

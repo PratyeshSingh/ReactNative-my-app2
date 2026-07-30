@@ -14,19 +14,22 @@ async function safeSet(key: string, value: string) {
     // eslint-disable-next-line @typescript-eslint/no-require-imports, import/no-unresolved
     const SecureStore = require('expo-secure-store');
     if (SecureStore && SecureStore.setItemAsync) return SecureStore.setItemAsync(key, value);
-  } catch {
+  } catch(e: any) {
+    console.error(`safeSet::SecureStore::  ${e}`);
   }
 
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports, import/no-unresolved
     const AsyncStorage = require('@react-native-async-storage/async-storage').default;
     if (AsyncStorage && AsyncStorage.setItem) return AsyncStorage.setItem(key, value);
-  } catch {
+  } catch (e: any) {
+    console.error(`safeSet:: AsyncStorage ::  ${e}`);
   }
 
   try {
     if (typeof localStorage !== 'undefined') return localStorage.setItem(key, value);
-  } catch {
+  } catch (e: any) {
+    console.error(`safeSet::localStorage:: ${e}`);
     warn('No persistent storage available; token will not persist across sessions');
   }
 }
@@ -89,6 +92,9 @@ export class AuthRepositoryImpl implements AuthRepository {
   }
 
   async saveToken(token: Token): Promise<void> {
+
+  console.log(`[AuthRepo IMpl Showing during store token] resp: ${TOKEN_KEY} :: ${JSON.stringify(token)} `);
+    
     await safeSet(TOKEN_KEY, JSON.stringify(token));
   }
 
@@ -107,6 +113,7 @@ export class AuthRepositoryImpl implements AuthRepository {
 
   async authMe(accessToken?: string) {
     const token = accessToken ?? (await this.getToken())?.accessToken;
+
     if (!token) throw new Error('No access token available');
     
     const resp = await authMeApi(token);

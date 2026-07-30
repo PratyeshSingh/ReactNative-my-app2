@@ -1,3 +1,4 @@
+import { useAuth } from '@/src/user-profile/presenter/viewmodels/useAuth';
 import { Link } from 'expo-router';
 import React, { useState } from 'react';
 import { Button, ScrollView, Text, TextInput, View } from 'react-native';
@@ -8,11 +9,18 @@ export default function AuthDebugScreen() {
   const [username, setUsername] = useState('emilys');
   const [password, setPassword] = useState('emilyspass');
   const [output, setOutput] = useState<string>('');
+  const { signIn, refresh, token, me } = useAuth(
+    container.login, 
+    container.refreshSession, 
+    container.getSavedToken, 
+    container.getCurrentUser
+  );
+  
 
   async function doLogin() {
     setOutput('Logging in...');
     try {
-      const resp = await container.login.execute(username, password);
+      const resp = await signIn(username, password);
       setOutput(JSON.stringify(resp, null, 2));
     } catch (e: any) {
       setOutput(String(e?.message ?? e));
@@ -22,7 +30,7 @@ export default function AuthDebugScreen() {
   async function doMe() {
     setOutput('Fetching current user...');
     try {
-      const user = await container.getCurrentUser.execute();
+      const user = await me();
       setOutput(JSON.stringify(user, null, 2));
     } catch (e: any) {
       setOutput(String(e?.message ?? e));
@@ -32,7 +40,7 @@ export default function AuthDebugScreen() {
   async function doRefresh() {
     setOutput('Refreshing session...');
     try {
-      const resp = await container.refreshSession.execute();
+      const resp = await refresh();
       setOutput(JSON.stringify(resp, null, 2));
     } catch (e: any) {
       setOutput(String(e?.message ?? e));
@@ -42,7 +50,7 @@ export default function AuthDebugScreen() {
   async function showStoredToken() {
     setOutput('Reading stored token...');
     try {
-      const t = await container.getSavedToken.execute();
+      const t = await token();
       setOutput(JSON.stringify(t, null, 2));
     } catch (e: any) {
       setOutput(String(e?.message ?? e));
