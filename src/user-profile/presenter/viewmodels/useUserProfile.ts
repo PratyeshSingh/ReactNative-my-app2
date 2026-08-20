@@ -25,14 +25,11 @@ export function useUserProfile(
 
     // 🛑 BYPASS FETCHING: If initialUser is provided, don't trigger the API call!
     if (initialUser) {
-      setUser(initialUser);
-      setLoading(false);
       return;
     }
 
     // don't attempt to load when no userId or getUserProfile provided
     if (!userId || !getUserProfile) {
-      setLoading(false);
       return;
     }
 
@@ -64,5 +61,9 @@ export function useUserProfile(
 
   }, [userId, getUserProfile, initialUser]);
 
-  return { user, loading, error };
+  return {
+    user: initialUser ?? user,
+    loading: initialUser || !userId || !getUserProfile ? false : loading,
+    error,
+  };
 }
