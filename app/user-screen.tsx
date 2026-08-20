@@ -1,6 +1,6 @@
 import { useAuth } from '@/src/user-profile/presenter/viewmodels/useAuth';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Image, Text, View } from 'react-native';
 import { container } from '../src/core-di/container';
 import { DIProvider } from '../src/core-di/DIContext';
@@ -70,7 +70,7 @@ export default function UserScreen() {
     return () => {
       isMounted = false;
     };
-  }, [router, token]);
+  }, [router, token, me]);
 
   async function loadUserDetails({ userName, pwd }: { userName: string, pwd: string }) {
     console.log(`[UserScreen] ${userName} ${pwd}`);
