@@ -1,7 +1,8 @@
 
+import { container } from '@/src/core-di/container';
 import { useEffect, useState } from 'react';
-import { User } from '../../domain/entities/User';
-import { GetUserProfile } from '../../domain/usecases/GetUserProfile';
+import { LoginResponse } from '../../data/api/AuthApi';
+import { useAuth } from './useAuth';
 
 
 export const putDelay = async () => {
@@ -13,13 +14,18 @@ export const putDelay = async () => {
 
 export function useUserProfile(
   userId: string | undefined,
-  getUserProfile?: GetUserProfile,
   initialUser?: any
 ) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<LoginResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const { token, me } = useAuth(
+    container.login,
+    container.refreshSession,
+    container.getSavedToken,
+    container.getCurrentUser
+  );
 
   useEffect(() => {
 
@@ -29,24 +35,32 @@ export function useUserProfile(
     }
 
     // don't attempt to load when no userId or getUserProfile provided
-    if (!userId || !getUserProfile) {
+    if (!userId || !me) {
       return;
     }
 
     let isMounted = true;
-    
+
     const fetchProfile = async () => {
       setLoading(true);
       setError(null);
+
       try {
-        const result = await getUserProfile.execute(userId);
-        if (isMounted) {
-          setUser(result);
+        const savedToken = await token();
+        if (!isMounted) return;
+
+        if (savedToken?.accessToken) {
+          const response = await me(savedToken?.accessToken);
+          if (isMounted) {
+            setUser(response);
+          }
+        } else {
+          // router.replace('/');
+          setError(null);
+          return;
         }
-      } catch (err: any) {
-        if (isMounted) {
-          setError(err?.message ?? 'Failed to load profile');
-        }
+      } catch {
+        // Ignore and continue showing the screen.
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -59,11 +73,11 @@ export function useUserProfile(
       isMounted = false;
     };
 
-  }, [userId, getUserProfile, initialUser]);
+  }, [userId, me, initialUser]);
 
   return {
     user: initialUser ?? user,
-    loading: initialUser || !userId || !getUserProfile ? false : loading,
+    loading: initialUser || !userId || !me ? false : loading,
     error,
   };
 }
