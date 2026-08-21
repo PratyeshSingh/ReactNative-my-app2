@@ -18,6 +18,7 @@ The app uses Expo's New Architecture (`newArchEnabled: true`), typed routes, and
 | Dependency | Version | Purpose |
 | :--- | :--- | :--- |
 | `expo-image` | `~57.0.3` | Optimized image loading and caching. |
+| `expo-image-picker` | SDK-compatible | TurboModule-backed native photo-library picker for Android and iOS. |
 | `expo-asset` | `~57.0.12` | Asset loading and bundling. |
 | `expo-font` | `~57.0.1` | Font loading. |
 | `expo-haptics` | `~57.0.1` | Haptic feedback. |
@@ -34,7 +35,7 @@ The app uses Expo's New Architecture (`newArchEnabled: true`), typed routes, and
 | `react-native-safe-area-context` | `~5.7.0` | Safe-area insets. |
 | `react-native-screens` | `~4.26.0` | Native screen primitives. |
 
-Expo plugins are registered in `app.json` for Router, splash screen, Secure Store, assets, fonts, images, status bar, and web browser support. iOS uses bundle identifier `com.anonymous.myapp`; Android uses package `com.anonymous.myapp`, edge-to-edge rendering, and predictive-back disabled.
+Expo plugins are registered in `app.json` for Router, splash screen, Secure Store, assets, fonts, images, image picker, status bar, and web browser support. The image picker requests photo-library access at runtime and uses the native Android/iOS picker through Expo's New Architecture-compatible module system. iOS uses bundle identifier `com.anonymous.myapp`; Android uses package `com.anonymous.myapp`, edge-to-edge rendering, and predictive-back disabled.
 
 ## 3. Navigation
 
@@ -73,3 +74,5 @@ Authentication tokens are stored under `auth.token`. Storage falls back from Exp
 ## 6. Application Architecture
 
 The product and user-profile features use typed DTOs, domain repositories, use cases, and presenters. Manual containers in `src/core-di/container.ts` and `src/product_browser/di/productContainer.ts` create shared API clients, repositories, and use-case instances. Product search is debounced by 500 ms, and the catalog derives category filtering locally from loaded products.
+
+Profile image selection is exposed by `useProfileImagePicker` and rendered by `ProfileView`. The selector handles permissions, cancellation, square cropping, and immediate local preview on both Android and iOS. `ProfileView` accepts an optional `onImageSelected` callback for persistence because the current user-profile API does not define an image-upload endpoint.
