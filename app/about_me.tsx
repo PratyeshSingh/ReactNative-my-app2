@@ -1,19 +1,19 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Text, View } from "react-native";
 import styles from "../src/style";
 
-const About=()=> {
-
-    // Inside your main App component or Root Layout:
+const About = () => {
+    const [architectureDetails, setArchitectureDetails] = useState<string | null>(null);
     useEffect(() => {
-    const isFabric = !!(globalThis as any).nativeFabricUIManager;
-    console.log("Is Fabric / New Arch Enabled?", isFabric ? "Yes ✅" : "No ❌");
+        const isFabric = !!(globalThis as any).nativeFabricUIManager;
+        setArchitectureDetails("Is Fabric & Herms / New Arch Enabled? " + (isFabric ? "Yes ✅" : "No ❌"));
     }, []);
 
     return (
-    <View style = {styles.textViewStyle}>
-        <Text>This is under maintaince</Text>
-    </View>
+        <View style={styles.textViewStyle}>
+            <Text style={styles.detailDescription}>This is About me</Text>
+            <Text style={styles.detailDescription}>1. Architecture {architectureDetails}</Text>
+        </View>
     )
 }
 

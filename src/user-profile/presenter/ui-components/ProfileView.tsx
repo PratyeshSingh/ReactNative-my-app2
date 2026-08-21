@@ -1,6 +1,7 @@
 
 import styles from '@/src/style';
-import { Image, Pressable, Text, View } from 'react-native';
+import { Image } from 'expo-image';
+import { Pressable, Text, View } from 'react-native';
 import { useProfileImagePicker } from '../viewmodels/useProfileImagePicker';
 
 export const ProfileView = ({
