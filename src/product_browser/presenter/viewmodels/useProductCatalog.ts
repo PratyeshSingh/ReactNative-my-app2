@@ -36,7 +36,7 @@ export function useProductCatalog(
           setError(e instanceof Error ? e.message : 'Failed');
         }
       } finally {
-        if (isMounted && !cts.token.isCancelled) {
+        if (isMounted) {
           setLoading(false);
         }
       }
