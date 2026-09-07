@@ -22,25 +22,39 @@ export type ProductListResponse = {
 
 export class ProductApiClient {
 
-  async fetchProducts(): Promise<ProductListResponse> {
-    return getCall<ProductListResponse>(`${baseUrl}/products?limit=100`);
+  async fetchProducts(
+    signal?: AbortSignal | undefined
+  ): Promise<ProductListResponse> {
+    return getCall<ProductListResponse>(`${baseUrl}/products?limit=100`,
+      {
+        signal: signal
+      });
   }
 
-  async fetchProduct(id: string): Promise<ProductDto> {
-    return getCall<ProductDto>(`${baseUrl}/products/${encodeURIComponent(id)}`);
+  async fetchProduct(id: string, signal?: AbortSignal | undefined): Promise<ProductDto> {
+    return getCall<ProductDto>(`${baseUrl}/products/${encodeURIComponent(id)}`, {
+      signal: signal
+    });
   }
 
-  async searchProducts(query: string): Promise<ProductListResponse> {
-    return getCall<ProductListResponse>(`${baseUrl}/products/search?q=${encodeURIComponent(query)}`);
+  async searchProducts(query: string, signal?: AbortSignal | undefined): Promise<ProductListResponse> {
+    return getCall<ProductListResponse>(`${baseUrl}/products/search?q=${encodeURIComponent(query)}`, {
+      signal: signal
+    });
   }
 
-  async fetchCategories(): Promise<string[]> {
-    return getCall<string[]>(`${baseUrl}/products/categories`);
+  async fetchCategories(signal?: AbortSignal | undefined): Promise<string[]> {
+    return getCall<string[]>(`${baseUrl}/products/categories`, {
+      signal: signal
+    });
   }
 
-  async fetchProductsByCategory(category: string): Promise<ProductListResponse> {
+  async fetchProductsByCategory(category: string, signal?: AbortSignal | undefined): Promise<ProductListResponse> {
     return getCall<ProductListResponse>(
-      `${baseUrl}/products/category/${encodeURIComponent(category)}?limit=100`
+      `${baseUrl}/products/category/${encodeURIComponent(category)}?limit=100`,
+      {
+        signal: signal
+      }
     );
   }
 }

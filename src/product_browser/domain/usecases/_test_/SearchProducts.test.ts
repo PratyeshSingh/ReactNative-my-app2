@@ -1,4 +1,4 @@
-import { describe, it, expect, jest } from '@jest/globals';
+import { describe, expect, it, jest } from '@jest/globals';
 import { Product } from '../../entities/Product';
 import { SearchProducts } from '../SearchProducts';
 
@@ -23,10 +23,10 @@ describe('SearchProducts use case', () => {
     };
 
     const searchProducts = new SearchProducts(repository as any);
-    const result = await searchProducts.execute('iphone');
+    const result = await searchProducts.execute('iphone', undefined);
 
     expect(result).toEqual(mockProducts);
-    expect(repository.searchProducts).toHaveBeenCalledWith('iphone');
+    expect(repository.searchProducts).toHaveBeenCalledWith('iphone', undefined);
     expect(repository.searchProducts).toHaveBeenCalledTimes(1);
   });
 
@@ -36,10 +36,10 @@ describe('SearchProducts use case', () => {
     };
 
     const searchProducts = new SearchProducts(repository as any);
-    const result = await searchProducts.execute('unknown-item');
+    const result = await searchProducts.execute('unknown-item', undefined);
 
     expect(result).toEqual([]);
-    expect(repository.searchProducts).toHaveBeenCalledWith('unknown-item');
+    expect(repository.searchProducts).toHaveBeenCalledWith('unknown-item', undefined);
   });
 
   it('should handle empty search queries by calling the repository', async () => {
@@ -48,9 +48,9 @@ describe('SearchProducts use case', () => {
     };
 
     const searchProducts = new SearchProducts(repository as any);
-    await searchProducts.execute('');
+    await searchProducts.execute('', undefined);
 
-    expect(repository.searchProducts).toHaveBeenCalledWith('');
+    expect(repository.searchProducts).toHaveBeenCalledWith('', undefined);
   });
 
   it('should propagate errors from the repository during search', async () => {
@@ -62,6 +62,6 @@ describe('SearchProducts use case', () => {
 
     const searchProducts = new SearchProducts(repository as any);
 
-    await expect(searchProducts.execute('test')).rejects.toThrow('API Error');
+    await expect(searchProducts.execute('test', undefined)).rejects.toThrow('API Error');
   });
 });

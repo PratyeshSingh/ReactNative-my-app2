@@ -45,7 +45,7 @@ describe('fetchJson (baseUrl, getCall & postCall)', () => {
         json: jest.fn().mockResolvedValueOnce({ success: true }),
       } as unknown as Response);
 
-      await getCall('https://dummyjson.com/auth/me', { Authorization: 'Bearer my-token' });
+      await getCall('https://dummyjson.com/auth/me', { headers: { Authorization: 'Bearer my-token' } });
 
       expect(mockFetch).toHaveBeenCalledWith('https://dummyjson.com/auth/me', {
         method: 'GET',
@@ -104,7 +104,7 @@ describe('fetchJson (baseUrl, getCall & postCall)', () => {
         json: jest.fn().mockResolvedValueOnce(responseData),
       } as unknown as Response);
 
-      const result = await postCall('https://dummyjson.com/auth/login', undefined, payload);
+      const result = await postCall('https://dummyjson.com/auth/login', { body: payload });
 
       expect(mockFetch).toHaveBeenCalledWith('https://dummyjson.com/auth/login', {
         method: 'POST',
@@ -120,7 +120,7 @@ describe('fetchJson (baseUrl, getCall & postCall)', () => {
         json: jest.fn().mockResolvedValueOnce({ ok: true }),
       } as unknown as Response);
 
-      await postCall('https://dummyjson.com/ping', { 'X-Custom-Header': 'value' });
+      await postCall('https://dummyjson.com/ping', { headers: { 'X-Custom-Header': 'value' } });
 
       expect(mockFetch).toHaveBeenCalledWith('https://dummyjson.com/ping', {
         method: 'POST',
@@ -141,7 +141,9 @@ describe('fetchJson (baseUrl, getCall & postCall)', () => {
       } as unknown as Response);
 
       await expect(
-        postCall('https://dummyjson.com/auth/login', {}, { username: 'wrong' })
+        postCall('https://dummyjson.com/auth/login',  {
+          body: { username: 'wrong', password: 'wrong' },
+        })
       ).rejects.toThrow('Invalid credentials');
     });
 

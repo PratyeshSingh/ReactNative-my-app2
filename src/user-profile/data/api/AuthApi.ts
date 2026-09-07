@@ -25,17 +25,29 @@ export type UserSummary = {
 
 
 export async function loginApi(body: LoginRequest): Promise<LoginResponse> {
-  return postCall<LoginResponse>(`${baseUrl}/auth/login`, undefined, body);
+  return postCall<LoginResponse>(`${baseUrl}/auth/login`,
+    {
+      body: body
+    }
+  );
 }
 
 export async function authMeApi(token: string): Promise<LoginResponse> {
-  return getCall<LoginResponse>(`${baseUrl}/auth/me`, {
-    Authorization: `Bearer ${token}`,
-  });
+  return getCall<LoginResponse>(`${baseUrl}/auth/me`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 }
 
 export type RefreshRequest = { refreshToken?: string; expiresInMins?: number };
 
 export async function refreshApi(body: RefreshRequest): Promise<LoginResponse> {
-  return postCall<LoginResponse>(`${baseUrl}/auth/refresh`, undefined, body);
+  return postCall<LoginResponse>(`${baseUrl}/auth/refresh`,
+    {
+      body: body
+    }
+  );
 }
