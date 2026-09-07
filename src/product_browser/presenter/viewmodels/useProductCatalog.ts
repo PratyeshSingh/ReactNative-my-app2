@@ -1,5 +1,6 @@
 import { useDebounce } from '@/src/hooks/Debounce';
 import { useEffect, useMemo, useState } from 'react';
+import { CancellationTokenSource } from '../../domain/cancellation/CancellationToken';
 import { Product } from '../../domain/entities/Product';
 import { GetProducts } from '../../domain/usecases/GetProducts';
 import { SearchProducts } from '../../domain/usecases/SearchProducts';
@@ -19,23 +20,23 @@ export function useProductCatalog(
 
   useEffect(() => {
     let isMounted = true;
-    const controller = new AbortController();
+    const cts = new CancellationTokenSource();
 
     const load = async () => {
       setLoading(true);
       try {
         const items = debouncedSearchQuery.trim()
-          ? await searchProducts.execute(debouncedSearchQuery, controller.signal)
-          : await getProducts.execute(controller.signal);
+          ? await searchProducts.execute(debouncedSearchQuery, cts)
+          : await getProducts.execute(cts);
 
         if (isMounted) setProducts(items);
       } catch (e) {
         const isAbort = e instanceof Error && e.name === 'AbortError';
-        if (isMounted && !isAbort && !controller.signal.aborted) {
+        if (isMounted && !isAbort && !cts.token.isCancelled) {
           setError(e instanceof Error ? e.message : 'Failed');
         }
       } finally {
-        if (isMounted && !controller.signal.aborted) {
+        if (isMounted && !cts.token.isCancelled) {
           setLoading(false);
         }
       }
@@ -45,7 +46,7 @@ export function useProductCatalog(
 
     return () => {
       isMounted = false;
-      controller.abort();
+      cts.cancel();
     };
   }, [getProducts, searchProducts, debouncedSearchQuery]);
 
