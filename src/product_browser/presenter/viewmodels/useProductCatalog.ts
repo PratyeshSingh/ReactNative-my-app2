@@ -18,22 +18,30 @@ export function useProductCatalog(
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
   useEffect(() => {
-    let isMounted = true;
-    const load = async () => {
-      setLoading(true);
-      try {
-        const items = debouncedSearchQuery.trim()
-          ? await searchProducts.execute(debouncedSearchQuery)
-          : await getProducts.execute();
-        if (isMounted) setProducts(items);
-      } catch (e) {
-        if (isMounted) setError(e instanceof Error ? e.message?.toString() : 'Failed');
-      } finally {
-        if (isMounted) setLoading(false);
-      }
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      let isMounted = true;
+      const load = async () => {
+        setLoading(true);
+        try {
+          const items = debouncedSearchQuery.trim()
+            ? await searchProducts.execute(debouncedSearchQuery, controller.signal)
+            : await getProducts.execute(controller.signal);
+          if (isMounted) setProducts(items);
+        } catch (e) {
+          if (isMounted) setError(e instanceof Error ? e.message?.toString() : 'Failed');
+        } finally {
+          if (isMounted && !controller.signal.aborted) setLoading(false);
+        }
+      };
+      load();
+      return () => { isMounted = false; }; // Cancels state update if component unmounts or query changes
+    }, 500);
+
+    return () => {
+      clearTimeout(timeoutId);
+      controller.abort();
     };
-    load();
-    return () => { isMounted = false; }; // Cancels state update if component unmounts or query changes
   }, [getProducts, searchProducts, debouncedSearchQuery]);
 
   const categories = useMemo(() => {

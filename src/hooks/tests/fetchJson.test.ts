@@ -104,7 +104,7 @@ describe('fetchJson (baseUrl, getCall & postCall)', () => {
         json: jest.fn().mockResolvedValueOnce(responseData),
       } as unknown as Response);
 
-      const result = await postCall('https://dummyjson.com/auth/login', undefined, payload);
+      const result = await postCall('https://dummyjson.com/auth/login', undefined, undefined, payload);
 
       expect(mockFetch).toHaveBeenCalledWith('https://dummyjson.com/auth/login', {
         method: 'POST',
@@ -141,7 +141,7 @@ describe('fetchJson (baseUrl, getCall & postCall)', () => {
       } as unknown as Response);
 
       await expect(
-        postCall('https://dummyjson.com/auth/login', {}, { username: 'wrong' })
+        postCall('https://dummyjson.com/auth/login', {}, undefined, { username: 'wrong' })
       ).rejects.toThrow('Invalid credentials');
     });
 

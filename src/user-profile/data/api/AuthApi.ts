@@ -25,7 +25,7 @@ export type UserSummary = {
 
 
 export async function loginApi(body: LoginRequest): Promise<LoginResponse> {
-  return postCall<LoginResponse>(`${baseUrl}/auth/login`, undefined, body);
+  return postCall<LoginResponse>(`${baseUrl}/auth/login`, undefined, undefined, body);
 }
 
 export async function authMeApi(token: string): Promise<LoginResponse> {
@@ -37,5 +37,5 @@ export async function authMeApi(token: string): Promise<LoginResponse> {
 export type RefreshRequest = { refreshToken?: string; expiresInMins?: number };
 
 export async function refreshApi(body: RefreshRequest): Promise<LoginResponse> {
-  return postCall<LoginResponse>(`${baseUrl}/auth/refresh`, undefined, body);
+  return postCall<LoginResponse>(`${baseUrl}/auth/refresh`, undefined, undefined, body);
 }

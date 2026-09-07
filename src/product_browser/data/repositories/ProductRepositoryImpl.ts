@@ -19,22 +19,30 @@ export class ProductRepositoryImpl implements ProductRepository {
     };
   }
 
-  async fetchProducts(): Promise<Product[]> {
-    const response = await this.api.fetchProducts();
+  async fetchProducts(
+    signal?: AbortSignal | undefined
+  ): Promise<Product[]> {
+    const response = await this.api.fetchProducts(signal);
     return response.products.map((dto) => this.mapDtoToProduct(dto));
   }
 
-  async fetchProductById(id: string): Promise<Product> {
-    const dto = await this.api.fetchProduct(id);
+  async fetchProductById(id: string,
+    signal?: AbortSignal | undefined
+  ): Promise<Product> {
+    const dto = await this.api.fetchProduct(id, signal);
     return this.mapDtoToProduct(dto);
   }
 
-  async searchProducts(query: string): Promise<Product[]> {
-    const response = await this.api.searchProducts(query);
+  async searchProducts(query: string,
+    signal?: AbortSignal | undefined
+  ): Promise<Product[]> {
+    const response = await this.api.searchProducts(query, signal);
     return response.products.map((dto) => this.mapDtoToProduct(dto));
   }
 
-  async fetchCategories(): Promise<string[]> {
-    return this.api.fetchCategories();
+  async fetchCategories(
+    signal?: AbortSignal | undefined
+  ): Promise<string[]> {
+    return this.api.fetchCategories(signal);
   }
 }
