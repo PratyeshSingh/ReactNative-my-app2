@@ -1,3 +1,4 @@
+import { CancellationToken } from '../../domain/cancellation/CancellationToken';
 import { Product } from '../../domain/entities/Product';
 import { ProductRepository } from '../../domain/repositories/ProductRepository';
 import { ProductApiClient } from '../api/ProductApi';
@@ -20,29 +21,45 @@ export class ProductRepositoryImpl implements ProductRepository {
   }
 
   async fetchProducts(
-    signal?: AbortSignal | undefined
+    token?: CancellationToken
   ): Promise<Product[]> {
-    const response = await this.api.fetchProducts(signal);
+    const controller = new AbortController();
+    if (token) {
+      token.onCancel(() => controller.abort());
+    }
+    const response = await this.api.fetchProducts(controller.signal);
     return response.products.map((dto) => this.mapDtoToProduct(dto));
   }
 
   async fetchProductById(id: string,
-    signal?: AbortSignal | undefined
+    token?: CancellationToken
   ): Promise<Product> {
-    const dto = await this.api.fetchProduct(id, signal);
+    const controller = new AbortController();
+    if (token) {
+      token.onCancel(() => controller.abort());
+    }
+    const dto = await this.api.fetchProduct(id, controller.signal);
     return this.mapDtoToProduct(dto);
   }
 
   async searchProducts(query: string,
-    signal?: AbortSignal | undefined
+    token?: CancellationToken
   ): Promise<Product[]> {
-    const response = await this.api.searchProducts(query, signal);
+    const controller = new AbortController();
+    if (token) {
+      token.onCancel(() => controller.abort());
+    }
+    const response = await this.api.searchProducts(query, controller.signal);
     return response.products.map((dto) => this.mapDtoToProduct(dto));
   }
 
   async fetchCategories(
-    signal?: AbortSignal | undefined
+    token?: CancellationToken
   ): Promise<string[]> {
-    return this.api.fetchCategories(signal);
+    const controller = new AbortController();
+    if (token) {
+      token.onCancel(() => controller.abort());
+    }
+    return this.api.fetchCategories(controller.signal);
   }
 }

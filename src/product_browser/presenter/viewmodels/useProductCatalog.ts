@@ -18,28 +18,33 @@ export function useProductCatalog(
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
   useEffect(() => {
+    let isMounted = true;
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => {
-      let isMounted = true;
-      const load = async () => {
-        setLoading(true);
-        try {
-          const items = debouncedSearchQuery.trim()
-            ? await searchProducts.execute(debouncedSearchQuery, controller.signal)
-            : await getProducts.execute(controller.signal);
-          if (isMounted) setProducts(items);
-        } catch (e) {
-          if (isMounted) setError(e instanceof Error ? e.message?.toString() : 'Failed');
-        } finally {
-          if (isMounted && !controller.signal.aborted) setLoading(false);
+
+    const load = async () => {
+      setLoading(true);
+      try {
+        const items = debouncedSearchQuery.trim()
+          ? await searchProducts.execute(debouncedSearchQuery, controller.signal)
+          : await getProducts.execute(controller.signal);
+
+        if (isMounted) setProducts(items);
+      } catch (e) {
+        const isAbort = e instanceof Error && e.name === 'AbortError';
+        if (isMounted && !isAbort && !controller.signal.aborted) {
+          setError(e instanceof Error ? e.message : 'Failed');
         }
-      };
-      load();
-      return () => { isMounted = false; }; // Cancels state update if component unmounts or query changes
-    }, 500);
+      } finally {
+        if (isMounted && !controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    load();
 
     return () => {
-      clearTimeout(timeoutId);
+      isMounted = false;
       controller.abort();
     };
   }, [getProducts, searchProducts, debouncedSearchQuery]);

@@ -2,46 +2,56 @@
 
 export const baseUrl = 'https://dummyjson.com';
 
+export interface FetchOptions {
+  headers?: Record<string, string>;
+  signal?: AbortSignal;
+  body?: unknown;
+}
+
+async function getErrorMessage(response: Response): Promise<string> {
+  const fallback = `Network request failed: ${response.status}`;
+
+  try {
+    const errorBody = await response.json() as { message?: unknown };
+    return typeof errorBody?.message === 'string' && errorBody.message.length > 0
+      ? errorBody.message
+      : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 export async function getCall<T>(
   url: string,
-  headers?: Record<string, string>,
-  signal?: AbortSignal | undefined
+  options: Omit<FetchOptions, 'body'> = {}
 ): Promise<T> {
+  const { headers, signal } = options;
   const response = await fetch(url, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json', ...headers },
-    signal: signal,
+    signal,
   });
+
   if (!response.ok) {
-    let errorMessage = `Network request failed: ${response.status}`;
-    try {
-      const errBody = await response.json();
-      if (errBody?.message) errorMessage = errBody.message;
-    } catch { }
-    throw new Error(errorMessage);
+    throw new Error(await getErrorMessage(response));
   }
   return response.json();
 }
 
 export async function postCall<T>(
   url: string,
-  headers?: Record<string, string>,
-  signal?: AbortSignal | undefined,
-  body?: any
+  options: FetchOptions = {}
 ): Promise<T> {
+  const { headers, signal, body } = options;
   const response = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...headers },
-    body: JSON.stringify(body),
-    signal: signal,
+    body: body ? JSON.stringify(body) : undefined,
+    signal,
   });
+
   if (!response.ok) {
-    let errorMessage = `Network request failed: ${response.status}`;
-    try {
-      const errBody = await response.json();
-      if (errBody?.message) errorMessage = errBody.message;
-    } catch { }
-    throw new Error(errorMessage);
+    throw new Error(await getErrorMessage(response));
   }
   return response.json();
 }
