@@ -25,9 +25,13 @@ export function useProductCatalog(
     const load = async () => {
       setLoading(true);
       try {
-        const items = debouncedSearchQuery.trim()
-          ? await searchProducts.execute(debouncedSearchQuery, cts)
-          : await getProducts.execute(cts);
+        let items: Product[];
+        if (debouncedSearchQuery.trim()) {
+          setSelectedCategory('All');
+          items = await searchProducts.execute(debouncedSearchQuery, cts);
+        } else {
+          items = await getProducts.execute(cts);
+        }
 
         if (isMounted) setProducts(items);
       } catch (e) {
